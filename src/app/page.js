@@ -19,8 +19,8 @@ export default function Home() {
   };
 
   return (
-      <>
-        🎵 Spotify Taste Mixer
-      </>  
+    <div onClick={handleLogin}>
+      Login
+    </div>
   );
 }
