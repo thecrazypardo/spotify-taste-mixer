@@ -28,6 +28,9 @@ export default function Header() {
       <Link href="/dashboard" className="text-lg font-medium text-white hover:text-green-400 transition">
         Dashboard
       </Link>
+      <Link href="/about" className="text-lg font-medium text-white hover:text-green-400 transition">
+        About
+      </Link>
       
       <div className="ml-auto flex items-center">
         {authStatus ? (
