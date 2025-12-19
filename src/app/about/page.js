@@ -24,7 +24,7 @@ export default function About() {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* 1. Navigation Bar */}
-      <Header />
+      
 
       {/* 2. Main Content Area */}
       <main className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">

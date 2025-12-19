@@ -1,55 +1,107 @@
-export async function generatePlaylist(preferences) {
-  const { artists, genres, decades, popularity } = preferences;
+// src/lib/spotify.js
+import { getAccessToken } from './auth';
+
+// URL base oficial de la API de Spotify
+const BASE_URL = 'https://api.spotify.com/v1';
+
+/**
+ * Busca artistas o canciones (GET /search)
+ */
+export async function searchSpotify(query, type) {
   const token = getAccessToken();
-  let allTracks = [];
+  if (!token || !query) return [];
 
-  // 1. Obtener top tracks de artistas seleccionados
-  for (const artist of artists) {
-    const tracks = await fetch(
-      `https://api.spotify.com/v1/artists/${artist.id}/top-tracks?market=US`,
-      {
-        headers: { 'Authorization': `Bearer ${token}` }
-      }
-    );
-    const data = await tracks.json();
-    allTracks.push(...data.tracks);
-  }
-
-  // 2. Buscar por géneros
-  for (const genre of genres) {
-    const results = await fetch(
-      `https://api.spotify.com/v1/search?type=track&q=genre:${genre}&limit=20`,
-      {
-        headers: { 'Authorization': `Bearer ${token}` }
-      }
-    );
-    const data = await results.json();
-    allTracks.push(...data.tracks.items);
-  }
-
-  // 3. Filtrar por década
-  if (decades.length > 0) {
-    allTracks = allTracks.filter(track => {
-      const year = new Date(track.album.release_date).getFullYear();
-      return decades.some(decade => {
-        const decadeStart = parseInt(decade);
-        return year >= decadeStart && year < decadeStart + 10;
-      });
+  try {
+    const res = await fetch(`${BASE_URL}/search?q=${encodeURIComponent(query)}&type=${type}&limit=10`, {
+      headers: { 'Authorization': `Bearer ${token}` }
     });
+    const data = await res.json();
+    return data[type + 's']?.items || [];
+  } catch (error) { return []; }
+}
+
+/**
+ * Genera la mezcla basada en las preferencias (Estrategia Recomendada)
+ */
+export async function generatePlaylist(preferences) {
+  const token = getAccessToken();
+  if (!token) throw new Error('No hay token de acceso');
+
+  const { genres, popularity, artists, tracks } = preferences;
+  
+  // Construcción de Query Robusta
+  let queryParts = [];
+  if (genres?.length > 0) queryParts.push(`genre:"${genres[0]}"`);
+  if (artists?.length > 0) queryParts.push(`artist:"${artists[0].name}"`);
+  if (tracks?.length > 0) queryParts.push(`track:"${tracks[0].name}"`);
+
+  // Si no hay selecciones, buscamos éxitos del año actual para no devolver vacío
+  const finalQuery = queryParts.length > 0 ? queryParts.join(' ') : 'year:2024';
+
+  try {
+    const res = await fetch(`${BASE_URL}/search?q=${encodeURIComponent(finalQuery)}&type=track&limit=30`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!res.ok) throw new Error('Error en la comunicación con Spotify');
+    const data = await res.json();
+
+    if (!data.tracks || data.tracks.items.length === 0) {
+      console.warn("Spotify no encontró resultados para:", finalQuery);
+      return []; 
+    }
+
+    // Mapeo con URIs obligatorios para el guardado posterior
+    return data.tracks.items.map(t => ({
+        id: t.id,
+        title: t.name,
+        artist: t.artists[0].name,
+        albumCover: t.album.images[0]?.url,
+        uri: t.uri // Requisito para POST /playlists/{id}/tracks
+      }));
+  } catch (error) {
+    console.error("Error en generatePlaylist:", error);
+    throw error;
   }
+}
 
-  // 4. Filtrar por popularidad
-  if (popularity) {
-    const [min, max] = popularity;
-    allTracks = allTracks.filter(
-      track => track.popularity >= min && track.popularity <= max
-    );
-  }
+/**
+ * FLUJO DE GUARDADO OBLIGATORIO (Lo que faltaba exportar)
+ * Pasos: 1. Obtener ID -> 2. Crear Playlist -> 3. Añadir Tracks
+ */
+export async function savePlaylistToSpotify(name, uris) {
+  const token = getAccessToken();
+  
+  // 1. Obtener perfil del usuario (GET /me)
+  const meRes = await fetch(`${BASE_URL}/me`, { 
+    headers: { 'Authorization': `Bearer ${token}` } 
+  });
+  const me = await meRes.json();
 
-  // 5. Eliminar duplicados y limitar a 30 canciones
-  const uniqueTracks = Array.from(
-    new Map(allTracks.map(track => [track.id, track])).values()
-  ).slice(0, 30);
+  // 2. Crear la playlist vacía (POST /users/{user_id}/playlists)
+  const playRes = await fetch(`${BASE_URL}/users/${me.id}/playlists`, {
+    method: 'POST',
+    headers: { 
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json' 
+    },
+    body: JSON.stringify({ 
+      name: name, 
+      description: 'Generada con Taste Mixer', 
+      public: false 
+    })
+  });
+  const playlist = await playRes.json();
 
-  return uniqueTracks;
+  // 3. Añadir canciones (POST /playlists/{playlist_id}/tracks)
+  await fetch(`${BASE_URL}/playlists/${playlist.id}/tracks`, {
+    method: 'POST',
+    headers: { 
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json' 
+    },
+    body: JSON.stringify({ uris: uris })
+  });
+
+  return playlist.external_urls.spotify;
 }
