@@ -1,4 +1,3 @@
-// components/widgets/GenreWidget.jsx
 'use client';
 import { useState } from 'react';
 import { Music, Search, X } from 'lucide-react';
@@ -18,7 +17,7 @@ export default function GenreWidget({ selectedItems = [], onSelect }) {
 
   const filteredGenres = ALL_GENRES.filter(g => 
     g.toLowerCase().includes(searchTerm.toLowerCase())
-  ).slice(0, 12); // Mostramos solo 12 sugerencias para no saturar
+  ).slice(0, 12);
 
   return (
     <div className="bg-zinc-900 p-4 rounded-xl border border-zinc-800">

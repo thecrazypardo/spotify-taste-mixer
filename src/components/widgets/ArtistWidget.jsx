@@ -18,7 +18,7 @@ export default function ArtistWidget({ selectedItems = [], onSelect }) {
       } else {
         setResults([]);
       }
-    }, 500); // Debounce de 500ms
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [query]);
@@ -52,7 +52,7 @@ export default function ArtistWidget({ selectedItems = [], onSelect }) {
         {loading && <Loader2 className="absolute right-3 top-3 animate-spin text-green-500" size={16} />}
       </div>
 
-      {/* Resultados de búsqueda */}
+      
       {results.length > 0 && (
         <div className="mt-2 bg-zinc-800 rounded-lg overflow-hidden border border-zinc-700">
           {results.map(artist => (
@@ -68,7 +68,7 @@ export default function ArtistWidget({ selectedItems = [], onSelect }) {
         </div>
       )}
 
-      {/* Selección actual */}
+      
       <div className="flex flex-wrap gap-2 mt-4">
         {selectedItems.map((item) => (
           <span key={item.id} className="flex items-center gap-1 bg-green-500/10 text-green-500 border border-green-500/20 px-2 py-1 rounded-full text-[10px] font-bold">

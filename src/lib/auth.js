@@ -1,4 +1,3 @@
-// src/lib/auth.js
 const isClient = typeof window !== 'undefined';
 
 export function generateRandomString(length) {
@@ -13,24 +12,22 @@ export function generateRandomString(length) {
 export function getSpotifyAuthUrl() {
   if (!isClient) return '#';
   
-  // 1. Validación CSRF Obligatoria según README
   const state = generateRandomString(16);
   sessionStorage.setItem('spotify_auth_state', state);
 
-  // 2. Extracción rigurosa de variables de entorno
   const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID;
   const redirectUri = process.env.NEXT_PUBLIC_REDIRECT_URI;
 
-  // Verificación preventiva en consola para depuración (Testing and Debugging)
+  
   if (!clientId) console.error("CRÍTICO: NEXT_PUBLIC_SPOTIFY_CLIENT_ID no está definido");
 
   const scope = 'user-read-private user-read-email playlist-modify-public playlist-modify-private user-top-read';
 
   const params = new URLSearchParams({
-    client_id: clientId,      // Parámetro OBLIGATORIO que causaba el error
-    response_type: 'code',    // Requerido por el flujo de Authorization Code
+    client_id: clientId,      
+    response_type: 'code',    
     redirect_uri: redirectUri,
-    state: state,             // Vinculado a la validación CSRF
+    state: state,             
     scope: scope,
     show_dialog: 'true'
   });
@@ -52,7 +49,7 @@ export function getAccessToken() {
   const expiration = localStorage.getItem('spotify_token_expiration');
   
   if (!token || !expiration) return null;
-  // Si falta menos de 5 minutos para expirar, se considera inválido
+ 
   if (Date.now() > parseInt(expiration) - 300000) return null;
   
   return token;

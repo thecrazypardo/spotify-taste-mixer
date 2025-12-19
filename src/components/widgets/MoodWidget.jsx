@@ -1,9 +1,8 @@
-// components/widgets/MoodWidget.jsx
 'use client';
 import { Smile } from 'lucide-react';
 
 export default function MoodWidget({ selectedItems, onSelect }) {
-  // selectedItems aquí será un objeto: { energy: 50, danceability: 50, valence: 50 }
+
   
   const handleChange = (key, value) => {
     onSelect({ ...selectedItems, [key]: parseInt(value) });

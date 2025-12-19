@@ -1,4 +1,3 @@
-// src/app/auth/callback/page.js
 'use client';
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -13,13 +12,13 @@ export default function AuthCallback() {
     const state = searchParams.get('state');
     const savedState = sessionStorage.getItem('spotify_auth_state');
 
-    // DEPURACIÓN SEGÚN GUÍA
+    
     console.log('State recibido:', state);
     console.log('State guardado:', savedState);
 
     if (!state || state !== savedState) {
       console.error('CSRF Validation Failed');
-      return; // Aquí puedes redirigir a una página de error específica
+      return;
     }
 
     async function getToken() {

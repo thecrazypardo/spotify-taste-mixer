@@ -1,4 +1,3 @@
-// components/widgets/DecadeWidget.js
 import { Calendar } from 'lucide-react';
 
 const DECADES = ['70s', '80s', '90s', '00s', '10s', '20s'];

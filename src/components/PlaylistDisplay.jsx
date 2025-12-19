@@ -1,4 +1,3 @@
-// src/components/PlaylistDisplay.jsx
 'use client';
 import { useState, useEffect } from 'react';
 import { Star, Trash2, Save } from 'lucide-react';
@@ -7,7 +6,7 @@ import { savePlaylistToSpotify } from '../lib/spotify';
 export default function PlaylistDisplay({ initialPlaylist, onRefresh }) {
   const [tracks, setTracks] = useState([]);
 
-  // Sincronizar tracks cuando llega una nueva mezcla generada
+ 
   useEffect(() => {
     if (initialPlaylist && initialPlaylist.length > 0) {
       setTracks(initialPlaylist);
@@ -15,7 +14,7 @@ export default function PlaylistDisplay({ initialPlaylist, onRefresh }) {
   }, [initialPlaylist]);
 
   const handleSave = async () => {
-    // IMPORTANTE: Usar 'tracks' (el estado actual), no 'initialPlaylist'
+ 
     if (tracks.length === 0) {
       alert("No hay canciones para guardar");
       return;

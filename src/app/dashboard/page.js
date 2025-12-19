@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { isAuthenticated, logout } from '../../lib/auth';
 import { generatePlaylist } from '../../lib/spotify';
 
-// Importación de todos los Widgets
+
 import ArtistWidget from '../../components/widgets/ArtistWidget';
 import TrackWidget from '../../components/widgets/TrackWidget';
 import GenreWidget from '../../components/widgets/GenreWidget';
@@ -18,13 +18,13 @@ export default function DashboardPage() {
   const [playlist, setPlaylist] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Estado centralizado de preferencias según el README
+
   const [prefs, setPrefs] = useState({
     artists: [],
     tracks: [],
     genres: [],
     decades: [],
-    mood: { energy: 50, valence: 50 } // Mood neutro inicial
+    mood: { energy: 50, valence: 50 } 
   });
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export default function DashboardPage() {
         alert("No se encontraron canciones. Intenta ajustar los filtros (especialmente popularidad).");
       }
       
-      setPlaylist(result); // Actualiza el estado para que PlaylistDisplay lo muestre
+      setPlaylist(result); 
     } catch (e) {
       console.error("Error en la generación:", e);
       alert("Error: " + e.message);
@@ -63,7 +63,7 @@ export default function DashboardPage() {
       </header>
 
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Columna de Widgets Configurables */}
+        
         <aside className="space-y-6">
           <ArtistWidget 
             selectedItems={prefs.artists} 
@@ -95,7 +95,7 @@ export default function DashboardPage() {
           </button>
         </aside>
 
-        {/* Área Principal de Visualización */}
+       
         <main className="lg:col-span-3">
           <PlaylistDisplay 
             initialPlaylist={playlist} 

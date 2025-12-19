@@ -10,7 +10,6 @@ export default function Header() {
   const router = useRouter();
   const [authStatus, setAuthStatus] = useState(false);
 
-  // useEffect solo se ejecuta en el cliente
   useEffect(() => {
     setAuthStatus(isAuthenticated());
   }, []);
